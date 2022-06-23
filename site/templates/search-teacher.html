@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+  <title>Search Results</title>
+</head>
+<body>
+  <div class="d-none d-md-block" style="width: 100vw; height: 100%; position: fixed; pointer-events: none;">
+    <nav class="navbar"><a href="#" class="navbar-brand"><br></a></nav>
+    <div class="container-lg" style="height: 100%">
+      <div class="row pe-2 pe-lg-0" style="height: 100%;">
+        <div class="col-7 pb-1"></div>
+        <div class="col-5 py-5 ps-0 ps-lg-4" style="height: 100%; pointer-events: auto;">
+          <div class="p-3 scrollable" id="filter" style="height: 100%;">
+            <div class="pb-4" style="display: flex; align-items: center;">
+              <h3 class="pt-1">Filter</h3>
+              <div class="shadow border-0 mx-2 mx-lg-4 bg-white" style="border-radius: 15px;">
+                <div class="row px-2 align-items-center">
+                  <div class="col-12">
+                    <input type="text" class="form-control py-2 shadow-none border-0 bg-transparent text-secondary" style="font-size: 20px;" id="search-bar" placeholder="Filter teachers…">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input toggle-all" type="checkbox" name="departments" id="department" checked>
+              <label class="form-check-label" for="department">
+                <h5>Department</h5>
+              </label>
+            </div>
+            {% for (code, hod_id, hod_name, name, description) in departments %}
+              <div class="form-check mx-4">
+                <input class="form-check-input toggle" type="checkbox" name="departments" id="department-{{ code }}" value="{{ code }}" checked>
+                <label class="form-check-label" for="department-{{ code }}"><span class="badge alert-secondary">{{ name }}</span></label>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light" style="position: sticky; top: 0;">
+    <div class="container-fluid">
+      <a href="/" class="navbar-brand text-primary"><strong>NUSHMods</strong></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav-items" aria-controls="nav-items" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="nav-items">
+        <div class="navbar-nav">
+          <a class="nav-link active" href="/search">Modules</a>
+          <a class="nav-link active" href="/search/teacher">Teachers</a>
+          {% if logged_in %}
+            <a class="nav-link active" href="/account">Account</a>
+            <a class="nav-link active" href="/consult">Consultations</a>
+          {% endif %}
+          <a class="nav-link active" href="/logout">
+            {% if logged_in %}
+              Logout
+            {% else %}
+              Login
+            {% endif %}
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="container-lg">
+    <div class="row">
+      <div class="col-12 col-md-7 pb-1">
+        <h1 class="text-center text-success mt-5 mb-3">Teachers</h1>
+        <div class="row">
+          <div class="col-3"></div>
+          <div class="col-6">
+          </div>
+        </div>
+        <div>
+          <table class="table table-light table-striped table-hover shadow mt-2 mb-5" style="border-radius: 20px; overflow: hidden;">
+            <thead>
+              <tr>
+                <th>Dept.</th>
+                <th>ID</th>
+                <th>Name</th>
+                <!-- <th>Email</th>
+                <th>Phone</th> -->
+              </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <style>
+    [contenteditable] {
+      outline: 0px solid transparent;
+    }
+
+    [contentEditable=true]:empty:not(:focus):before {
+      content:attr(data-text)
+    }
+
+    .scrollable {
+      overflow-y: scroll;
+      overflow-x: hidden;
+    }
+    .scrollable::-webkit-scrollbar {
+      width: 4px;
+    }
+    .scrollable::-webkit-scrollbar-track {
+      border-radius: 100px;
+    }
+    .scrollable::-webkit-scrollbar-thumb {
+      background-color: #A9A9A9;
+      border-radius: 100px;
+    }
+
+    .selected {
+      --bs-table-bg:#000;
+      --bs-table-striped-bg:#000;
+      --bs-table-striped-color:#FFF;
+      --bs-table-active-bg:#000;
+      --bs-table-active-color:#FFF;
+      --bs-table-hover-bg:#222;
+      --bs-table-hover-color:#FFF;
+      color:#FFF;
+      border-color:#AAA;
+      font-weight: bold;
+    }
+  </style>
+  <script>
+    for (el of document.getElementsByClassName("toggle-all")) {
+      el.onclick = (event) => {
+        let {name, checked} = event.currentTarget;
+        for (el2 of document.getElementsByName(name)) {
+          el2.checked = checked;
+        }
+        search();
+      }
+    }
+    for (el of document.getElementsByClassName("toggle")) {
+      el.onclick = search;
+    }
+
+    let tableBody = document.getElementById("table-body");
+    function search(event=null) {
+      let filterStr = "";
+      for (const name of ["departments"]) {
+        filterStr += `&${name}=`;
+        for (const checkbox of document.getElementsByName(name)) {
+          if (checkbox.checked && !(checkbox.classList.contains("toggle-all"))) {
+            filterStr += `${checkbox.value},`;
+          }
+        }
+        filterStr = filterStr.substring(0, filterStr.length-1);
+      }
+
+      // remove "/safe" from url if allowed
+      $.get("/interact/get/teachers/safe?q=" + document.getElementById("search-bar").value + filterStr, function(teachers) {
+        tableBody.innerHTML = "";
+        for (let teacher of teachers) {
+          // tableBody.innerHTML += `
+          //   <tr>
+          //     <td>${teacher[0]}</td>
+          //     <td>${teacher[1]}</td>
+          //     <td>${teacher[2]}</td>
+          //     <td>${teacher[3]}</td>
+          //   </tr>
+          // `;
+          tableBody.innerHTML += `
+            <tr>
+              <td>${teacher[0]}</td>
+              <td>${teacher[1]}</td>
+              <td>${teacher[2]}</td>
+            </tr>
+          `;
+        }
+      });
+    }
+    document.getElementById("search-bar").addEventListener("keyup", search);
+
+    window.addEventListener('load', function() {
+      document.getElementById("search-bar").value = new URLSearchParams(window.location.search).get("q");
+      search();
+    });
+  </script>
+</body>
+</html>

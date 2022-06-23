@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker3.standalone.min.css" integrity="sha512-p4vIrJ1mDmOVghNMM4YsWxm0ELMJ/T0IkdEvrkNHIcgFsSzDi/fV7YxzTzb3mnMvFPawuIyIrHcpxClauEfpQg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js" integrity="sha512-T/tUfKSV1bihCnd+MxKD0Hm1uBBroVYBOYSk1knyvQ9VyZJpc/ALb4P0r6ubwVPSGB2GvjeoMAJJImBG12TiaQ==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/3.0.20/autosize.min.js" integrity="sha512-EAEoidLzhKrfVg7qX8xZFEAebhmBMsXrIcI0h7VPx2CyAyFHuDvOAUs9CEATB2Ou2/kuWEDtluEVrQcjXBy9yw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <title>Class Details</title>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a href="/" class="navbar-brand text-primary"><strong>NUSHMods</strong></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav-items" aria-controls="nav-items" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="nav-items">
+        <div class="navbar-nav">
+          <a class="nav-link active" href="/search">Modules</a>
+          <a class="nav-link active" href="/search/teacher">Teachers</a>
+          <a class="nav-link active" href="/account">Account</a>
+          <a class="nav-link active" href="/consult">Consultations</a>
+          <a class="nav-link active" href="/logout">Logout</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="container-lg mt-5">
+    <div class="row">
+      <div class="col-12 col-md-6 pe-5">
+        <div id="welcome" style="display: block;">
+          <div style="display: flex; justify-content: center; align-items: center;">
+            <span class="h1 text-success" id="text-name"></span>
+            <span style="width: 1rem;"></span>
+            <span class="badge alert-secondary" id="text-code"></span>
+          </div>
+          <h4 class="mt-4 ms-1">Lessons</h4>
+          <table class="table table-light table-striped shadow" style="border-radius: 20px; overflow: hidden;">
+            <thead>
+              <tr>
+                <th>Day</th>
+                <th>Start Time</th>
+                <th>Hours</th>
+                <th></th>
+              </tr>
+              <tr id="lessons-add">
+                <td><span class="badge alert-secondary"><input type="text" id="lessons-add-day" style="all: unset; width: 5rem; max-width: 5rem;"></input></span></td>
+                <td><span class="badge alert-secondary"><input type="text" id="lessons-add-time" style="all: unset; width: 5rem; max-width: 5rem;"></input></span></td>
+                <td><span class="badge alert-secondary"><input type="text" id="lessons-add-hours" style="all: unset; width: 5rem; max-width: 5rem;"></input></span></td>
+                <td class="text-center press" onclick="addLesson()"><i class="bi bi-plus-lg text-success"></i></td>
+              </tr>
+            </thead>
+            <tbody id="lessons-table"></tbody>
+          </table>
+          <h4 class="mt-4 ms-1">Teachers</h4>
+          <table class="table table-light table-striped shadow mb-5" style="border-radius: 20px; overflow: hidden;">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th></th>
+              </tr>
+              <tr id="teachers-add">
+                <td colspan="2"><span class="badge alert-secondary"><input type="text" id="teachers-add-id" style="all: unset; width: 3rem; max-width: 3rem;"></input></span></td>
+                <td class="text-center press" onclick="addTeacher()"><i class="bi bi-plus-lg text-success"></i></td>
+              </tr>
+            </thead>
+            <tbody id="teachers-table"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 mt-5 mt-md-0 ps-5">
+        <h4 class="mt-2 ms-1">Students</h4>
+        <table class="table table-light table-striped shadow mb-5" style="border-radius: 20px; overflow: hidden;">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Mentor Group</th>
+              <th></th>
+            </tr>
+            <tr id="students-add">
+              <td colspan="3"><span class="badge alert-secondary"><input type="text" id="students-add-id" style="all: unset; width: 5rem; max-width: 5rem;"></input></span></td>
+              <td class="text-center press" onclick="addStudent()"><i class="bi bi-plus-lg text-success"></i></td>
+            </tr>
+          </thead>
+          <tbody id="students-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <style>
+    [contenteditable] {
+      outline: 0px solid transparent;
+    }
+    .press {
+      cursor: pointer;
+    }
+  </style>
+  <script>
+    let code = "";
+    let name = "";
+    let perms = "";
+    function load(event=null) {
+      searchParams = new URLSearchParams(window.location.search);
+      code = searchParams.get("code");
+      name = searchParams.get("name");
+      $.get(`/interact/get/class/perms?code=${code}&name=${name}`, function(result) {
+        perms = result;
+        if (perms === null) {
+          window.location = "/account";
+          return;
+        }
+        if (perms !== 1) {
+          ["lessons", "teachers", "students"].forEach(c => document.getElementById(c+"-add").style.display = "none");
+        }
+        document.getElementById("text-code").innerHTML = code;
+        document.getElementById("text-name").innerHTML = name;
+        loadLessons();
+        loadTeachers();
+        loadStudents();
+      });
+    }
+    function loadLessons() {
+      $.get(`/interact/get/class/lessons?code=${code}&name=${name}`, function(lessons) {
+        let lessonsTable = document.getElementById("lessons-table");
+        lessonsTable.innerHTML = "";
+        let deleteButton = "";
+
+        for (day of ["Mon", "Tue", "Wed", "Thu", "Fri"]) {
+          for (lesson of lessons) {
+            if (!(day.includes(lesson[0]))) continue;
+            deleteButton = `<td class="text-center press" onclick="deleteLesson('${lesson[0]}')"><i class="bi bi-x-lg text-danger"></i></td>`;
+
+            lessonsTable.innerHTML += `
+              <tr>
+                <td>${lesson[0]}</td>
+                <td>${lesson[1]}</td>
+                <td>${lesson[2]}</td>
+                ${perms === 1 ? deleteButton : '<td></td>'}
+              </tr>
+            `;
+          }
+        }
+      });
+    }
+    function loadTeachers() {
+      $.get(`/interact/get/class/teachers?code=${code}&name=${name}`, function(teachers) {
+        let teachersTable = document.getElementById("teachers-table");
+        teachersTable.innerHTML = "";
+        let deleteButton = "";
+
+        for (teacher of teachers) {
+          deleteButton = `<td class="text-center press" onclick="deleteTeacher('${teacher[0]}')"><i class="bi bi-x-lg text-danger"></i></td>`;
+          
+          teachersTable.innerHTML += `
+            <tr>
+              <td>${teacher[0]}</td>
+              <td>${teacher[1]}</td>
+              ${perms === 1 ? deleteButton : '<td></td>'}
+            </tr>
+          `;
+        }
+      });
+    }
+    function loadStudents() {
+      $.get(`/interact/get/class/students?code=${code}&name=${name}`, function(students) {
+        let studentsTable = document.getElementById("students-table");
+        studentsTable.innerHTML = "";
+        let deleteButton = "";
+
+        for (student of students) {
+          deleteButton = `<td class="text-center press" onclick="deleteStudent('${student[0]}')"><i class="bi bi-x-lg text-danger"></i></td>`;
+          
+          studentsTable.innerHTML += `
+            <tr>
+              <td>${student[0]}</td>
+              <td>${student[1]}</td>
+              <td>${student[2]}</td>
+              ${perms === 1 ? deleteButton : '<td></td>'}
+            </tr>
+          `;
+        }
+      });
+    }
+
+    function addLesson() {
+      let day = document.getElementById("lessons-add-day").value;
+      let time = document.getElementById("lessons-add-time").value;
+      let hours = document.getElementById("lessons-add-hours").value;
+      if (day === "" || time === "" || hours === "") return;
+      if (!(["Mon", "Tue", "Wed", "Thu", "Fri"].includes(day))) return;
+      document.getElementById("lessons-add-day").value = "";
+      document.getElementById("lessons-add-time").value = "";
+      document.getElementById("lessons-add-hours").value = "";
+      $.post("/interact/add/class/lesson", {
+        code: code,
+        name: name,
+        day: day,
+        time: time,
+        hours: hours
+      }, function(status) {
+        if (status.success) {
+          loadLessons();
+        }
+      });
+    }
+    function addTeacher() {
+      let id = document.getElementById("teachers-add-id").value;
+      document.getElementById("teachers-add-id").value = "";
+      $.post("/interact/add/class/teacher", {
+        code: code,
+        name: name,
+        id: id,
+      }, function(status) {
+        if (status.success) {
+          loadTeachers();
+        }
+      });
+    }
+    function addStudent() {
+      let id = document.getElementById("students-add-id").value;
+      document.getElementById("students-add-id").value = "";
+      $.post("/interact/add/class/student", {
+        code: code,
+        name: name,
+        id: id
+      }, function(status) {
+        if (status.success) {
+          loadStudents();
+        }
+      });
+    }
+
+    function deleteLesson(day) {
+      $.post("/interact/delete/class/lesson", {
+        code: code,
+        name: name,
+        day: day
+      }, function(status) {
+        if (status.success) {
+          loadLessons();
+        }
+      });
+    }
+    function deleteTeacher(id) {
+      $.post("/interact/delete/class/teacher", {
+        code: code,
+        name: name,
+        id: id
+      }, function(status) {
+        if (status.success) {
+          loadTeachers();
+        }
+      });
+    }
+    function deleteStudent(id) {
+      $.post("/interact/delete/class/student", {
+        code: code,
+        name: name,
+        id: id
+      }, function(status) {
+        if (status.success) {
+          loadStudents();
+        }
+      });
+    }
+
+    window.addEventListener('load', load);
+  </script>
+</body>
+</html>

@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/3.0.20/autosize.min.js" integrity="sha512-EAEoidLzhKrfVg7qX8xZFEAebhmBMsXrIcI0h7VPx2CyAyFHuDvOAUs9CEATB2Ou2/kuWEDtluEVrQcjXBy9yw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <title>Search Results</title>
+</head>
+<body>
+  <div class="d-none d-md-block" style="width: 100vw; height: 100%; position: fixed; pointer-events: none;">
+    <nav class="navbar"><a href="#" class="navbar-brand"><br></a></nav>
+    <div class="container-lg" style="height: 100%">
+      <div class="row pe-2 pe-lg-0" style="height: 100%;">
+        <div class="col-7 pb-1"></div>
+        <div class="col-5 py-5 ps-0 ps-lg-4" style="height: 100%; pointer-events: auto;">
+          <div class="p-3 scrollable" id="filter" style="height: 100%;">
+            <h3>Filter</h3>
+            <div class="form-check">
+              <input class="form-check-input toggle-all" type="checkbox" name="departments" id="department" checked>
+              <label class="form-check-label" for="department">
+                <h5>Department</h5>
+              </label>
+            </div>
+            {% for (code, hod_id, hod_name, name, description) in departments %}
+              <div class="form-check mx-4">
+                <input class="form-check-input toggle" type="checkbox" name="departments" id="department-{{ code }}" value="{{ code }}" checked>
+                <label class="form-check-label" for="department-{{ code }}"><a class="badge alert-secondary" style="text-decoration: none; cursor: pointer;">{{ name }}</a></label>
+                <span class="ms-1" style="cursor: pointer;" onclick="showDeptModal('{{ code }}')"><i class="bi bi-box-arrow-up-right"></i></span>
+              </div>
+            {% endfor %}
+            <div class="row">
+              <div class="col-5 col-lg-4">
+                <div class="form-check mt-4">
+                  <input class="form-check-input toggle-all" type="checkbox" name="levels" id="level" checked>
+                  <label class="form-check-label" for="level">
+                    <h5>Level</h5>
+                  </label>
+                </div>
+                {% for level in levels %}
+                  <div class="form-check mx-4">
+                    <input class="form-check-input toggle" type="checkbox" name="levels" id="level-{{ level }}" value="{{ level }}" checked>
+                    <label class="form-check-label" for="level-{{ level }}">{{ level }}</label>
+                  </div>
+                {% endfor %}
+              </div>
+              <div class="col-7 col-lg-8">
+                <div class="form-check mt-4">
+                  <input class="form-check-input toggle" type="checkbox" id="not-offered" checked>
+                  <label class="form-check-label" for="not-offered">
+                    <h5>Not Offered</h5>
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input toggle-all" type="checkbox" name="types" id="type" checked>
+                  <label class="form-check-label" for="type">
+                    <h5>Type</h5>
+                  </label>
+                </div>
+                {% for type in types %}
+                <div class="form-check mx-4">
+                  <input class="form-check-input toggle" type="checkbox" name="types" id="type-{{ type }}" value="{{ type }}" checked>
+                  <label class="form-check-label" for="type-{{ type }}">{{ type }}</label>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="bg-light border border-3 shadow p-3 scrollable" id="side-pane" style="max-height: 90%; border-radius: 20px; display: none;">
+            <div style="display: flex; align-items: center;">
+              <h3 id="side-pane-title" style="min-width: 0; flex-grow: 1; word-wrap: break-word;"></h3>
+              <div style="display: flex;">
+                <span class="p-2 ms-2 press-2 text-center" id="side-pane-edit" style="border-radius: 10px; display: none; width: 2.5rem;" onclick="editModule(moduleCodes[selected])">
+                  <i class="h5 bi bi-pencil text-center"></i>
+                </span>
+                <span class="p-2 ms-2 press-2 text-center text-danger" id="side-pane-delete" style="border-radius: 10px; display: none; width: 2.5rem;" onclick="deleteDialog.show()">
+                  <i class="h5 bi bi-trash text-center"></i>
+                </span>
+                <span class="p-2 ms-2 press-2 text-center" style="border-radius: 10px; width: 2.5rem;" onclick="select(selected)">
+                  <i class="h5 bi bi-x-lg text-center"></i>
+                </span>
+              </div>
+            </div>
+            <span class="text-muted" id="side-pane-coord"></span>
+            <p></p>
+            <a class="badge alert-secondary" id="side-pane-department" style="text-decoration: none; cursor: pointer;"></a>
+            <span class="badge alert-secondary" id="side-pane-code"></span>
+            <br>
+            <span id="side-pane-type"></span>
+            <span class="badge alert-secondary" id="side-pane-semesters"></span>
+            <span class="badge alert-secondary" id="side-pane-mc"></span>
+            <span class="badge alert-secondary" id="side-pane-hours"></span>
+            <p></p>
+            <div id="side-pane-description" style="white-space: pre-wrap; word-wrap: break-word;"></div>
+            <div class="mt-3 btn btn-outline-success" id="side-pane-offer" style="border-radius: 20px; width: 100%;" onclick="offerModule(moduleCodes[selected])">Offer Module</div>
+            <div class="mt-3 btn btn-outline-danger" id="side-pane-stop" style="border-radius: 20px; width: 100%;" onclick="stopDialog.show()">Stop Offering Module</div>
+          </div>
+
+          <div class="bg-light border border-3 shadow p-3 scrollable" id="edit-pane" style="max-height: 90%; border-radius: 20px; display: none;">
+            <div style="display: flex; align-items: center;">
+              <h3 style="min-width: 0; flex-grow: 1;">
+                <input id="edit-pane-title" type="text" placeholder="Title" style="all: unset; min-width: 0; max-width: 100%;">
+              </h3>
+              <div style="display: flex;">
+                <span class="p-2 ms-2 text-center text-danger" id="edit-pane-error" style="border-radius: 10px; width: 2.5rem;">
+                  <i class="h5 bi bi-exclamation-triangle text-center"></i>
+                </span>
+                <span class="p-2 ms-2 press-2 text-center text-success" id="edit-pane-submit" style="border-radius: 10px; width: 2.5rem;">
+                  <i class="h5 bi bi-check2 text-center"></i>
+                </span>
+                <span class="p-2 ms-2 press-2 text-center" style="border-radius: 10px; width: 2.5rem;" onclick="select(selected)">
+                  <i class="h5 bi bi-x-lg text-center"></i>
+                </span>
+              </div>
+            </div>
+            <span class="badge alert-secondary" id="edit-pane-coord-div">
+              <input id="edit-pane-coord" type="text" placeholder="Coord ID" style="all: unset; max-width: 5rem;">
+            </span>
+            <p></p>
+            <span class="badge alert-secondary" id="edit-pane-department"></span>
+            <span class="badge alert-secondary">
+              <input id="edit-pane-code" type="text" placeholder="Code" style="all: unset; max-width: 3.5rem;">
+            </span>
+            <br>
+            <span class="badge alert-secondary">
+              <select id="edit-pane-type" name="type" style="all: unset; width: auto;">
+                <option value="" selected disabled>Type</option>
+                {% for type in types %}
+                  <option value="{{ type }}">{{ type }}</option>
+                {% endfor %}
+              </select>
+            </span>
+            <span class="badge alert-secondary">
+              <input id="edit-pane-semesters" type="text" placeholder="Semesters" style="all: unset; max-width: 3.5rem;">
+            </span>
+            <span class="badge alert-secondary">
+              <input id="edit-pane-mc" type="text" style="all: unset; max-width: 1.5rem;"> MCs
+            </span>
+            <span class="badge alert-secondary">
+              <input id="edit-pane-hours" type="text" style="all: unset; max-width: 1.5rem;"> hr/wk
+            </span>
+            <p></p>
+            <textarea id="edit-pane-description" placeholder="Description" style="all: unset; width: 100%; white-space: pre-wrap;"></textarea>
+          </div>
+        </div>
+      </div>
+      {% if hod_of != None %}
+        <button type="button" class="btn btn-primary shadow-lg px-4 py-3" style="position: fixed; bottom: 2rem; right: 2rem; pointer-events: auto;border-radius: 30px;" onclick="editModule(null)">
+          <strong><i class="bi bi-plus-lg"></i> New Module</strong>
+        </button>
+      {% endif %}
+      <div id="hod-of-code">{% if hod_of != None %}{{ hod_of[0] }}{% endif %}</div>
+      <div id="hod-of-name">{% if hod_of != None %}{{ hod_of[1] }}{% endif %}</div>
+    </div>
+  </div>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light" style="position: sticky; top: 0;">
+    <div class="container-fluid">
+      <a href="/" class="navbar-brand text-primary"><strong>NUSHMods</strong></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav-items" aria-controls="nav-items" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="nav-items">
+        <div class="navbar-nav">
+          <a class="nav-link active" href="/search">Modules</a>
+          <a class="nav-link active" href="/search/teacher">Teachers</a>
+          {% if logged_in %}
+            <a class="nav-link active" href="/account">Account</a>
+            <a class="nav-link active" href="/consult">Consultations</a>
+          {% endif %}
+          <a class="nav-link active" href="/logout">
+            {% if logged_in %}
+              Logout
+            {% else %}
+              Login
+            {% endif %}
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="container-lg">
+    <div class="row">
+      <div class="col-12 col-md-7 pb-1">
+        <h1 class="text-center text-success mt-5 mb-3">Search Results</h1>
+        <div class="row">
+          <div class="col-3"></div>
+          <div class="col-6">
+            <div class="shadow border-0 my-3 bg-white" style="border-radius: 15px;">
+              <div class="row px-2 align-items-center">
+                <div class="col-12">
+                  <input type="text" class="form-control py-2 shadow-none border-0 bg-transparent text-secondary" style="font-size: 20px;" id="search-bar" placeholder="Filter modules…">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <table class="table table-light table-striped table-hover shadow mt-2 mb-5" style="border-radius: 20px; overflow: hidden;">
+            <thead>
+              <tr>
+                <th>Module Code</th>
+                <th>Title</th>
+                <th>Semesters</th>
+                <th>Coordinator</th>
+              </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="dept-modal">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content" style="border-radius: 25px;">
+        <div class="modal-header">
+          <h3 class="modal-name" id="dept-modal-name"></h3>
+          <span class="ms-2 me-1 mt-1 badge alert-secondary" id="dept-modal-code"></span>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <textarea id="dept-modal-description" placeholder="Description" style="all: unset; width: 100%; white-space: pre-wrap;"></textarea>
+        </div>
+        <div class="modal-footer">
+          <div class="text-muted me-auto">HOD: <span id="dept-modal-hod"></span></div>
+          <span class="p-2 ms-2 text-center text-danger" id="dept-modal-error" style="border-radius: 10px; width: 2.5rem;">
+            <i class="h5 bi bi-exclamation-triangle text-center"></i>
+          </span>
+          <button type="button" class="btn btn-outline-success px-3" id="dept-modal-save" style="border-radius: 25px;">Save</button>
+          <button type="button" class="btn btn-primary shadow-sm" style="border-radius: 25px;" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="delete-dialog">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content" style="border-radius: 25px;">
+        <div class="modal-header">
+          <h3 class="modal-name">Delete Module</h3>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">Are you sure you want to delete this module?</div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary shadow-sm px-3" style="border-radius: 25px;" onclick="deleteModule(moduleCodes[selected])">Yes</button>
+          <button type="button" class="btn btn-outline-secondary px-3" style="border-radius: 25px;" data-bs-dismiss="modal">No</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="stop-dialog">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content" style="border-radius: 25px;">
+        <div class="modal-header">
+          <h3 class="modal-name">Stop Offering Module</h3>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">Are you sure you want to stop offering this module?</div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary shadow-sm px-3" style="border-radius: 25px;" onclick="stopModule(moduleCodes[selected])">Yes</button>
+          <button type="button" class="btn btn-outline-secondary px-3" style="border-radius: 25px;" data-bs-dismiss="modal">No</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <style>
+    [contenteditable] {
+      outline: 0px solid transparent;
+    }
+
+    [contentEditable=true]:empty:not(:focus):before {
+      content:attr(data-text)
+    }
+
+    .press-1,
+    .press-2 {
+      cursor: pointer;
+    }
+    .press-1:hover {
+      background: linear-gradient(rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.02));
+    }
+    .press-2:hover {
+      background: linear-gradient(rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.08));
+    }
+    .press-1:active {
+      background: linear-gradient(rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.04));
+    }
+    .press-2:active {
+      background: linear-gradient(rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0.16));
+    }
+
+    .scrollable {
+      overflow-y: scroll;
+      overflow-x: hidden;
+    }
+    .scrollable::-webkit-scrollbar {
+      width: 4px;
+    }
+    .scrollable::-webkit-scrollbar-track {
+      border-radius: 100px;
+    }
+    .scrollable::-webkit-scrollbar-thumb {
+      background-color: #A9A9A9;
+      border-radius: 100px;
+    }
+
+    .selected {
+      --bs-table-bg:#000;
+      --bs-table-striped-bg:#000;
+      --bs-table-striped-color:#FFF;
+      --bs-table-active-bg:#000;
+      --bs-table-active-color:#FFF;
+      --bs-table-hover-bg:#222;
+      --bs-table-hover-color:#FFF;
+      color:#FFF;
+      border-color:#AAA;
+      font-weight: bold;
+    }
+  </style>
+  <script>
+    const tableMap = {"Elective":"table-success", "Enrichment":"table-warning", "Honours":"table-primary", "Other":"table-danger"};
+    const tableDefault = "";
+    const badgeMap = {"Elective":"alert-success", "Enrichment":"alert-warning", "Honours":"alert-primary", "Other":"alert-danger"};
+    const badgeDefault = "alert-secondary";
+
+    let moduleCodes = [];
+    let selected = null;
+    function select(i) {
+      document.getElementById('edit-pane').style.display = 'none';
+      if (selected != null) {
+        document.getElementById('row-'+selected).classList.remove('selected');
+        document.getElementById('side-pane').style.display = 'none';
+      } else {
+        document.getElementById('filter').style.display = 'none';
+      }
+      if (selected != i) {
+        document.getElementById('row-'+i).classList.add('selected');
+        populateSidePane(moduleCodes[i]);
+        document.getElementById('side-pane').style.display = 'block';
+        selected = i;
+      } else {
+        document.getElementById('filter').style.display = 'block';
+        selected = null;
+      }
+    }
+    
+    for (el of document.getElementsByClassName("toggle-all")) {
+      el.onclick = (event) => {
+        let {name, checked} = event.currentTarget;
+        for (el2 of document.getElementsByName(name)) {
+          el2.checked = checked;
+        }
+        search();
+      }
+    }
+    for (el of document.getElementsByClassName("toggle")) {
+      el.onclick = search;
+    }
+
+    function search(event=null) {
+      let filterStr = "";
+      for (const name of ["departments", "types"]) {
+        filterStr += `&${name}=`;
+        for (const checkbox of document.getElementsByName(name)) {
+          if (checkbox.checked && !(checkbox.classList.contains("toggle-all"))) {
+            filterStr += `${checkbox.value},`;
+          }
+        }
+        filterStr = filterStr.substring(0, filterStr.length-1);
+      }
+
+      $.get("/interact/get/modules?q=" + document.getElementById("search-bar").value + filterStr + "&notoffered=" + document.getElementById("not-offered").checked, function(modules) {
+        if (selected != null) select(selected);
+        document.getElementById("table-body").innerHTML = "";
+        moduleCodes = [];
+        let mod = "";
+
+        let index = -1;
+        let levelsList = [];
+        let isChecked = document.getElementById("level").checked;
+        for (const checkbox of document.getElementsByName("levels")) {
+          if (checkbox.checked && !(checkbox.classList.contains("toggle-all"))) {
+            levelsList.push(checkbox.value);
+          }
+        }
+
+        let i = 0;
+        if (modules === null) return;
+        for (mod of modules) {
+          index = mod[0].search(/[0-9]/);
+          if ((index == -1 && isChecked) || levelsList.includes(mod[0][index])) {} else continue;
+          document.getElementById("table-body").innerHTML += `
+            <tr id="row-${i}" class="${tableMap[mod[4]] ? tableMap[mod[4]] : tableDefault}" onclick="select('${i}');">
+              <td>${mod[0]}</td>
+              <td>${mod[1]}</td>
+              <td>${mod[2]}</td>
+              <td>${mod[3] ?? "-"}</td>
+            </tr>
+          `;
+          moduleCodes.push(mod[0])
+          i += 1;
+        }
+      });
+    }
+
+    function populateSidePane(code) {
+      $.get("/interact/get/module?code=" + code, function(mod) {
+        mod = mod ?? ["", "", "", "", "", "", "", "", "", "", "", "", ""];
+        mod[6] += " MCs";
+        mod[7] = mod[7].replace(".0", "") + " hr/wk";
+        let data = ["code", "title", "coord", "department", "type", "semesters", "mc", "hours", "description"]; // d_code, coord_id, is_hod
+        for (i in data) {
+          document.getElementById("side-pane-"+data[i]).innerHTML = mod[i];
+        }
+        document.getElementById("side-pane-type").className = "badge " + (badgeMap[mod[4]] ?? badgeDefault);
+        document.getElementById("side-pane-department").onclick = () => showDeptModal(mod[9]);
+
+        document.getElementById("side-pane-edit").style.display = mod[11] ? "block" : "none";
+        document.getElementById("side-pane-delete").style.display = mod[11] ? "block" : "none";
+        document.getElementById("side-pane-offer").style.display = (mod[11] && !mod[12]) ? "block" : "none";
+        document.getElementById("side-pane-stop").style.display = (mod[11] && mod[12]) ? "block" : "none";
+      });
+    }
+
+    function populateEditPane(code) {
+      $.get("/interact/get/module?code=" + code, function(mod) {
+        mod = mod ?? ["", "", "", document.getElementById("hod-of-name").innerHTML, "", "", "", "", "", document.getElementById("hod-of-code").innerHTML, "", "", ""];
+        mod[2] = mod[10];
+        mod[7] = mod[7].replace(".0", "");
+        let data = ["code", "title", "coord", "department", "type", "semesters", "mc", "hours", "description"]; // d_code, coord_id, is_hod
+        for (i in data) {
+          if (i == 3) continue;
+          document.getElementById("edit-pane-"+data[i]).value = mod[i];
+        }
+        document.getElementById("edit-pane-title").focus();
+        document.getElementById("edit-pane-department").innerHTML = mod[3];
+
+        document.getElementById("edit-pane-error").style.display = "none";
+        document.getElementById("edit-pane-coord-div").style.display = mod[12] ? "inline-block" : "none";
+
+        document.getElementById("edit-pane-submit").onclick = () => {
+          posting = Object.fromEntries(data.map(x => 
+            [x, x === "department" ? mod[9] : document.getElementById("edit-pane-"+x).value]
+          ));
+          posting["org"] = code;
+          $.post("/interact/edit/module", posting, function(status) {
+            if (status.success) {
+              window.location = "/search";
+            } else {
+              let errorDisplay = document.getElementById("edit-pane-error");
+              errorDisplay.title = status.message;
+              errorDisplay.style.display = "block";
+              new bootstrap.Tooltip(errorDisplay);
+            }
+          })
+        }
+      });
+    }
+
+    function editModule(code) {
+      populateEditPane(code);
+      if (code === null) {
+        select(selected);
+        document.getElementById('filter').style.display = 'none';
+      } else {
+        document.getElementById('side-pane').style.display = 'none';
+      }
+      document.getElementById('edit-pane').style.display = 'block';
+      setTimeout(function () {
+        autosize.update(document.getElementById("edit-pane-description"));
+      }, 250);
+    }
+    function deleteModule(code) {
+      $.post("/interact/delete/module", {code: code}, function(status) {
+        if (status.success) {
+          window.location = "/search";
+        } else {
+          deleteDialog.hide();
+        }
+      })
+    }
+    function offerModule(code) {
+      $.post("/interact/offer/module", {code: code}, function(status) {
+        if (status.success) {
+          window.location = "/search";
+        }
+      })
+    }
+    function stopModule(code) {
+      $.post("/interact/stop/module", {code: code}, function(status) {
+        if (status.success) {
+          window.location = "/search";
+        } else {
+          stopDialog.hide();
+        }
+      })
+    }
+
+    function populateDeptModal(code) {
+      $.get("/interact/get/department?code=" + code, function(dept) {
+        dept = dept ?? ["", "", "", "", false];
+        let data = ["name", "code", "hod"];
+        for (i in data) {
+          document.getElementById("dept-modal-"+data[i]).innerHTML = dept[i];
+        }
+        document.getElementById("dept-modal-description").value = dept[3];
+
+        document.getElementById("dept-modal-description").disabled = !dept[4];
+        document.getElementById("dept-modal-error").style.display = "none";
+        document.getElementById("dept-modal-save").style.display = dept[4] ? "block" : "none";
+
+        document.getElementById("dept-modal-save").onclick = () => {
+          $.post("/interact/edit/department", {
+            code: code,
+            description: document.getElementById("dept-modal-description").value
+          }, function(status) {
+            if (status.success) {
+              window.location = "/search";
+            } else {
+              let errorDisplay = document.getElementById("dept-modal-error");
+              errorDisplay.title = status.message;
+              errorDisplay.style.display = "block";
+              deptEditError = new bootstrap.Tooltip(errorDisplay);
+            }
+          });
+        }
+      });
+    }
+
+    function showDeptModal(code) {
+      populateDeptModal(code);
+      deptModal.show();
+    }
+
+    let deleteDialog = new bootstrap.Modal(document.getElementById("delete-dialog"));
+    let stopDialog = new bootstrap.Modal(document.getElementById("stop-dialog"));
+    let deptModal = new bootstrap.Modal(document.getElementById("dept-modal"));
+
+    document.getElementById("search-bar").addEventListener("keyup", search);
+    window.addEventListener('load', function() {
+      document.getElementById("search-bar").value = new URLSearchParams(window.location.search).get("q");
+      search();
+    });
+    
+    $(document).ready(function() {
+      autosize($("#edit-pane-description"));
+      autosize($("#dept-modal-description"));
+      $(document).on('shown.bs.modal', "#dept-modal", function() {
+        autosize.update($("#dept-modal-description"));
+      });
+    })
+  </script>
+</body>
+</html>

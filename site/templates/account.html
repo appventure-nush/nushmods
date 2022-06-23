@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker3.standalone.min.css" integrity="sha512-p4vIrJ1mDmOVghNMM4YsWxm0ELMJ/T0IkdEvrkNHIcgFsSzDi/fV7YxzTzb3mnMvFPawuIyIrHcpxClauEfpQg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js" integrity="sha512-T/tUfKSV1bihCnd+MxKD0Hm1uBBroVYBOYSk1knyvQ9VyZJpc/ALb4P0r6ubwVPSGB2GvjeoMAJJImBG12TiaQ==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/3.0.20/autosize.min.js" integrity="sha512-EAEoidLzhKrfVg7qX8xZFEAebhmBMsXrIcI0h7VPx2CyAyFHuDvOAUs9CEATB2Ou2/kuWEDtluEVrQcjXBy9yw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <title>Account</title>
+</head>
+<body>
+  <div class="d-none d-md-block" style="width: 95vw; height: 100vh; position: fixed; pointer-events: none;">
+    <nav class="navbar"><a href="#" class="navbar-brand"><br></a></nav>
+    <div class="container-lg pt-5" style="height: 100%;">
+      <div class="row" style="height: 100%;">
+        <div class="col-12 col-md-6" style="height: 100%; pointer-events: auto;">
+          <div id="welcome" style="display: block;">
+            <h1 class="text-center text-success">Welcome, {{ name | default('User') }}<div class="btn" onclick="openFilter(true);"><i class="bi bi-filter h2"></i></div></h1>
+            <div id="announcements" class="carousel carousel-dark slide mt-5" data-bs-ride="carousel">
+              <div class="carousel-indicators" id="announce-buttons"></div>
+              <div class="carousel-inner p-3" id="announce-main"></div>
+              <button class="carousel-control-prev" type="button" data-bs-target="#announcements" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#announcements" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+                <span class="visually-hidden">Next</span>
+              </button>
+            </div>
+          </div>
+          <div class="p-3 no-scrollbar" id="filter" style="height: 80%; display: none;">
+            <div style="display: flex; align-items: center;">
+              <h3 class="pt-1">Filter</h3>
+              <div class="mx-2 mx-lg-4 mx-xl-5" style="flex-grow: 1; display: flex;">
+                <div class="shadow border-0 bg-white" style="border-radius: 15px; flex-grow: 1;">
+                  <input type="text" class="form-control py-2 shadow-none border-0 bg-transparent text-secondary" style="font-size: 20px;" id="search-bar" placeholder="Filter items…">
+                </div>
+                <div class="bg-light shadow pt-2 pb-1 ms-2 me-1 toggle press-1 text-center" id="toggle-item-module" name="itemof" value="M" style="width: 3rem;" data-bs-toggle="tooltip" data-bs-placement="top" title="Module Item">
+                  <strong>M</strong>
+                </div>
+                <div class="bg-light shadow pt-2 pb-1 mx-1 toggle press-1 text-center" id="toggle-item-class" name="itemof" value="C" style="width: 3rem;" data-bs-toggle="tooltip" data-bs-placement="top" title="Class Item">
+                  <strong>C</strong>
+                </div>
+              </div>
+              <button type="button" class="btn-close" onclick="openFilter(false);"></button>
+            </div>
+            <div class="form-check pt-4">
+              <input class="form-check-input toggle-all" type="checkbox" name="types" id="type" checked>
+              <label class="form-check-label" for="type">
+                <h5>Type</h5>
+              </label>
+            </div>
+            <div style="display: flex; flex-wrap: wrap;">
+              {% for type in types %}
+                <div class="bg-light shadow p-3 m-2 toggle press-1" name="types" value="{{ type }}">
+                  {{ type }}
+                </div>
+              {% endfor %}
+            </div>
+            <div class="form-check pt-3">
+              <input class="form-check-input toggle-all" type="checkbox" name="modules" id="type" checked>
+              <label class="form-check-label" for="module">
+                <span class="h5">Module</span> <span class="text-muted">(Hold to view details)</span>
+              </label>
+            </div>
+            <div style="display: flex; flex-wrap: wrap;">
+              {% for (module, classes) in class_list.items() %}
+                <div class="bg-light shadow p-3 m-2 toggle press-1" name="modules" value="{{ module }}">
+                  {{ module }}
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+          <div id="edit-pane" style="display: none; height: 100%;">
+            <div class="bg-light border border-3 shadow px-3 pt-3 no-scrollbar" style="max-height: 80%; border-radius: 20px;">
+              <div style="display: flex; align-items: center;">
+                <h3 style="min-width: 0; flex-grow: 1;">
+                  <input id="edit-pane-title" type="text" name="title" placeholder="Title" style="all: unset; min-width: 0; max-width: 100%;">
+                </h3>
+                <div style="display: flex;">
+                  <span class="p-2 ms-2 text-center text-danger" id="edit-pane-error" style="border-radius: 10px; width: 2.5rem;">
+                    <i class="h5 bi bi-exclamation-triangle text-center"></i>
+                  </span>
+                  <span class="p-2 ms-2 press-2 text-center text-success" id="edit-pane-submit" style="border-radius: 10px; display: none; width: 2.5rem;">
+                    <i class="h5 bi bi-check2 text-center"></i>
+                  </span>
+                  <span class="p-2 ms-2 press-2 text-center" style="border-radius: 10px; width: 2.5rem;" onclick="select(selected)">
+                    <i class="h5 bi bi-x-lg text-center"></i>
+                  </span>
+                </div>
+              </div>
+              <p class="text-muted">
+                <input type="text" id="edit-pane-date" name="date" placeholder="Date" style="all: unset; min-width: 0; max-width: 100%;" onkeydown="return false">
+              </p>
+              <span class="badge alert-secondary">
+                <select id="edit-pane-module" name="module" style="all: unset; width: auto;"></select>
+              </span>
+              <span class="badge alert-secondary">
+                <select id="edit-pane-class" name="class" style="all: unset; width: auto;">
+                  <option selected disabled>Class</option>
+                </select>
+              </span>
+              <span class="badge alert-secondary" id="edit-pane-type-div">
+                <select id="edit-pane-type" name="type" style="all: unset; width: auto;">
+                  <option value="" selected disabled>Type</option>
+                  {% for type in types %}
+                    <option value="{{ type }}">{{ type }}</option>
+                  {% endfor %}
+                </select>
+              </span>
+              <span class="badge alert-secondary" id="edit-pane-weightage-div">
+                <input id="edit-pane-weightage" type="text" name="weightage" style="all: unset; max-width: 1.5rem;">
+                %
+              </span>
+              <span class="badge alert-secondary" id="edit-pane-priority-div">
+                <input id="edit-pane-priority" type="number" name="priority" placeholder="!" style="all: unset; max-width: 2rem;">
+              </span>
+              <div class="form-check form-switch mt-1" id="edit-pane-switch-div">
+                <input class="form-check-input" type="checkbox" role="switch" id="edit-pane-switch">
+                <label class="form-check-label text-muted" id="edit-pane-switch-label" for="edit-pane-switch">Announcement</label>
+              </div>
+              <p></p>
+              <textarea id="edit-pane-description" name="description" placeholder="Description" style="all: unset; width: 100%; white-space: pre-wrap;"></textarea>
+            </div>
+          </div>
+
+          <div id="side-pane" style="display: none; height: 100%">
+            <div class="bg-light border border-3 shadow px-3 pt-3 no-scrollbar" style="max-height: 80%; border-radius: 20px;">
+              <div style="display: flex; align-items: center;">
+                <h3 id="side-pane-title" style="min-width: 0; flex-grow: 1; word-wrap: break-word;"></h3>
+                <div style="display: flex;">
+                  <span class="p-2 ms-2 press-2 text-center" id="side-pane-edit" style="border-radius: 10px; display: none; width: 2.5rem;" onclick="editItem(itemIDs[selected])">
+                    <i class="h5 bi bi-pencil text-center"></i>
+                  </span>
+                  <span class="p-2 ms-2 press-2 text-center text-danger" id="side-pane-delete" style="border-radius: 10px; display: none; width: 2.5rem;" onclick="deleteDialog.show()">
+                    <i class="h5 bi bi-trash text-center"></i>
+                  </span>
+                  <span class="p-2 ms-2 press-2 text-center" style="border-radius: 10px; width: 2.5rem;" onclick="select(selected)">
+                    <i class="h5 bi bi-x-lg text-center"></i>
+                  </span>
+                </div>
+              </div>
+              <p class="text-muted" id="side-pane-date"></p>
+              <a class="badge alert-secondary" id="side-pane-module" style="text-decoration: none; cursor: pointer;"></a>
+              <span class="badge alert-secondary" id="side-pane-class"></span>
+              <span class="badge" id="side-pane-type"></span>
+              <span class="badge alert-secondary" id="side-pane-weightage"></span>
+              <p></p>
+              <p id="side-pane-description" style="white-space: pre-wrap; word-wrap: break-word;"></p>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 mt-5 mt-md-0"></div>
+      </div>
+      {% if teacher %}
+        <button type="button" class="btn btn-primary shadow-lg px-4 py-3" style="position: fixed; bottom: 2rem; right: 2rem; pointer-events: auto;border-radius: 30px;" onclick="editItem(null)">
+          <strong><i class="bi bi-plus-lg"></i> New Item</strong>
+        </button>
+      {% endif %}
+      <div id="is-teacher" style="display: none;">{{ teacher }}</div>
+    </div>
+  </div>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light" style="position: sticky; top: 0;">
+    <div class="container-fluid">
+      <a href="/" class="navbar-brand text-primary"><strong>NUSHMods</strong></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav-items" aria-controls="nav-items" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="nav-items">
+        <div class="navbar-nav">
+          <a class="nav-link active" href="/search">Modules</a>
+          <a class="nav-link active" href="/search/teacher">Teachers</a>
+          <a class="nav-link active" href="/account">Account</a>
+          <a class="nav-link active" href="/consult">Consultations</a>
+          <a class="nav-link active" href="/logout">Logout</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="container-lg mt-5">
+    <div class="row">
+      <div class="col-12 col-md-6"></div>
+      <div class="col-12 col-md-6 mt-5 mt-md-0">
+        <table class="table table-light table-striped table-hover shadow mt-2 mb-5" style="border-radius: 20px; overflow: hidden;">
+          <thead>
+            <tr>
+              <th>Module</th>
+              <th>Item</th>
+              <th>Date</th>
+              <th>Weightage</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="delete-dialog">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content" style="border-radius: 25px;">
+        <div class="modal-header">
+          <h3 class="modal-name">Delete Item</h3>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">Are you sure you want to delete this item?</div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary shadow-sm px-3" style="border-radius: 25px;" onclick="deleteItem(itemIDs[selected])">Yes</button>
+          <button type="button" class="btn btn-outline-secondary px-3" style="border-radius: 25px;" data-bs-dismiss="modal">No</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="view-modal">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content" style="border-radius: 25px;">
+        <div class="modal-header">
+          <h3 class="modal-name" id="view-modal-title" style="flex-grow: 1;"></h3>
+          <span class="badge alert-secondary mx-1" id="view-modal-code">MA6131</span>
+          <span class="badge alert-success mx-1" id="view-modal-class-div">
+            <input type="text" id="view-modal-class" placeholder="Class Name" style="all: unset; width: 5rem;">
+          </span>
+          <span class="mx-1" id="view-modal-details" style="cursor: pointer;"><i class="bi bi-box-arrow-up-right"></i></span>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="view-modal-coord-div">
+            <p class="text-muted">Coord: <span id="view-modal-coord"></span></p>
+          </div>
+          <textarea id="view-modal-overview" name="overview" placeholder="Overview" style="all: unset; width: 100%; white-space: pre-wrap;"></textarea>
+        </div>
+        <div class="modal-footer" style="display: flex;">
+          <span class="dropdown dropup">
+            <button type="button" class="btn btn-outline-secondary dropdown-toggle" style="border-radius: 25px;" data-bs-toggle="dropdown">Class</button>
+            <ul class="dropdown-menu" id="view-modal-class-dropdown" style="border-radius: 10px;">
+            </ul>
+          </span>
+          <span id="view-modal-class-add-div">
+            <span class="badge alert-secondary" id="view-modal-code">
+              <input type="text" id="view-modal-class-add-input" placeholder="Add Class" style="all: unset; width: 5rem;">
+            </span>
+            <span class="p-2 press-2 text-center" id="view-modal-class-add" style="border-radius: 10px; width: 2.5rem;">
+              <i class="h5 bi bi-plus-lg text-center"></i>
+            </span>
+          </span>
+          <span class="p-2 press-2 text-center" id="view-modal-class-delete" style="border-radius: 10px; width: 2.5rem;">
+            <i class="h5 bi bi-trash text-center text-danger"></i>
+          </span>
+          <span style="flex-grow: 1;"></span>
+          <span class="p-2 ms-2 text-center text-danger" id="view-modal-error" style="border-radius: 10px; width: 2.5rem;">
+            <i class="h5 bi bi-exclamation-triangle text-center"></i>
+          </span>
+          <button type="button" class="btn btn-outline-success px-3" id="view-modal-save" style="border-radius: 25px;">Save</button>
+          <button type="button" class="btn btn-primary shadow-sm" style="border-radius: 25px;" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <style>
+    [contentEditable=true]:empty:not(:focus):before{
+        content: attr(data-ph);
+        color: #888;
+    }
+
+    .toggle {
+      border-radius: 15px;
+      width: 8rem;
+    }
+
+    .press-1,
+    .press-2 {
+      cursor: pointer;
+    }
+    .press-1:hover {
+      background: linear-gradient(rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.02));
+    }
+    .press-2:hover {
+      background: linear-gradient(rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.08));
+    }
+    .press-1:active {
+      background: linear-gradient(rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.04));
+    }
+    .press-2:active {
+      background: linear-gradient(rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0.16));
+    }
+
+    .no-scrollbar {
+      overflow-y: scroll;
+      overflow-x: hidden;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .scrollable {
+      overflow-y: scroll;
+      overflow-x: hidden;
+    }
+    .scrollable::-webkit-scrollbar {
+      width: 4px;
+    }
+    .scrollable::-webkit-scrollbar-track {
+      border-radius: 100px;
+    }
+    .scrollable::-webkit-scrollbar-thumb {
+      background-color: #A9A9A9;
+      border-radius: 100px;
+    }
+
+    .scrollable-x {
+      display: flex;
+      flex-direction: row;
+      overflow-x: scroll;
+    }
+    .scrollable-x::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .selected {
+      --bs-table-bg:#000;
+      --bs-table-striped-bg:#000;
+      --bs-table-striped-color:#FFF;
+      --bs-table-active-bg:#000;
+      --bs-table-active-color:#FFF;
+      --bs-table-hover-bg:#222;
+      --bs-table-hover-color:#FFF;
+      color:#FFF;
+      border-color:#AAA;
+      font-weight: bold;
+    }
+  </style>
+  <script>
+    const HOLD_LENGTH = 300;
+    const tableMap = {"Assignment":"table-primary", "Event":"table-success", "Important":"table-warning", "Test":"table-danger"};
+    const tableDefault = "";
+    const badgeMap = {"Assignment":"alert-primary", "Event":"alert-success", "Important":"alert-warning", "Test":"alert-danger"};
+    const badgeDefault = "alert-secondary";
+    function formatWeightage(num) {
+      return {
+        "": "",
+        "0.0": "-"
+      }[num] ?? num.replace(".0", "")+"%";
+    }
+    let itemIDs = [];
+
+    let selected = null;
+    let filterOpened = false;
+    function select(i) {
+      document.getElementById('edit-pane').style.display = 'none';
+      if (selected != null) {
+        document.getElementById('row-'+selected).classList.remove('selected');
+        document.getElementById('side-pane').style.display = 'none';
+      } else {
+        document.getElementById('welcome').style.display = 'none';
+        document.getElementById('filter').style.display = 'none';
+      }
+      if (selected != i) {
+        document.getElementById('row-'+i).classList.add('selected');
+        populateSidePane(itemIDs[i]);
+        document.getElementById('side-pane').style.display = 'block';
+        selected = i;
+      } else {
+        if (filterOpened) {
+          document.getElementById('filter').style.display = 'block';
+        } else {
+          document.getElementById('welcome').style.display = 'block';
+        }
+        selected = null;
+      }
+    }
+
+    function openFilter(open) {
+      if (open) {
+        document.getElementById('welcome').style.display = 'none';
+        document.getElementById('filter').style.display = 'block';
+      } else {
+        document.getElementById('filter').style.display = 'none';
+        document.getElementById('welcome').style.display = 'block';
+      }
+      filterOpened = open;
+    }
+
+    for (el of document.getElementsByClassName("toggle-all")) {
+      el.onclick = (event) => {
+        let {name, checked} = event.currentTarget;
+        for (el2 of document.getElementsByName(name)) {
+          if (el2 !== event.currentTarget) {
+            setChecked(el2, checked);
+          }
+        }
+        search();
+      }
+    }
+    for (el of document.getElementsByClassName("toggle")) {
+      el.onclick = (event) => {
+        toggle(event.currentTarget);
+        search();
+      }
+      if (el.getAttribute("name") == "modules") {
+        el.addEventListener("mousedown", (event) => {
+          hold(event.currentTarget.getAttribute("value"));
+        });
+      }
+    }
+
+    function setChecked(el, bool) {
+      let list = el.classList;
+      if (bool) {
+          list.remove("bg-white");
+          list.remove("border");
+          list.add("bg-light");
+          list.add("shadow");
+      } else {
+          list.remove("bg-light");
+          list.remove("shadow");
+          list.add("bg-white");
+          list.add("border");
+      }
+    }
+    function isChecked(el) {
+      return el.classList.contains("shadow");
+    }
+    function toggle(el) {
+      setChecked(el, !isChecked(el));
+    }
+
+    function search(event=null) {
+      let filterStr = "";
+      for (const name of ["itemof", "types", "modules"]) {
+        filterStr += `&${name}=`;
+        for (const el of document.getElementsByName(name)) {
+          if (isChecked(el) && !(el.classList.contains("toggle-all"))) {
+            filterStr += `${el.getAttribute("value")},`;
+          }
+        }
+        filterStr = filterStr.substring(0, filterStr.length-1);
+      }
+
+      $.get("/account?q=" + document.getElementById("search-bar").value + filterStr, function(items) {
+        if (selected != null) select(selected);
+        let tableBody = document.getElementById("table-body");
+        tableBody.innerHTML = "";
+        itemIDs = [];
+        let item = "";
+
+        for (let i in items) {
+          item = items[i];
+
+          tableBody.innerHTML += `
+            <tr id="row-${i}" class="${tableMap[item[6]] ?? tableDefault}" onclick="select('${i}');">
+              <td>${item[1]}</td>
+              <td>${item[2]}</td>
+              <td>${item[4]}</td>
+              <td>${formatWeightage(item[5])}</td>
+            </tr>
+          `;
+          
+          itemIDs.push(item[0]);
+        }
+      });
+    }
+    document.getElementById("search-bar").addEventListener("keyup", search);
+
+    let deleteDialog = new bootstrap.Modal(document.getElementById("delete-dialog"));
+    let viewModal = new bootstrap.Modal(document.getElementById("view-modal"));
+    function populateEditPane(id) {
+      $.get("/interact/get/item?id=" + id, function(item) {
+        item = item ?? ["", "", "", "", "", "", "", "", "", "", ""];
+        item[5] = formatWeightage(item[5]).replace("-", "").replace("%", "");
+        let data = ["id", "module", "title", "description", "date", "weightage", "type", "class"]
+        populateModuleSelect();
+        for (i in data) {
+          if (i == 0 || i == 7) continue;
+          document.getElementById("edit-pane-"+data[i]).value = item[i];
+        }
+        autosize.update(document.getElementById("edit-pane-description"));
+        document.getElementById("edit-pane-title").focus();
+        document.getElementById("edit-pane-type").className = "badge " + (badgeMap[item[6]] ?? badgeDefault);
+        document.getElementById("edit-pane-error").style.display = "none";
+        document.getElementById("edit-pane-submit").style.display = (id === null || item[10]) ? "block" : "none";
+        document.getElementById("edit-pane-switch-div").style.display = id === null ? "block" : "none";
+
+        document.getElementById("edit-pane-module").onchange = populateClassSelect;
+        populateClassSelect();
+        document.getElementById("edit-pane-class").value = item[7];
+        ["module", "class"].forEach(x => document.getElementById("edit-pane-"+x).disabled = (item[8] !== "" && !item[8]));
+
+        switchToDated();
+        document.getElementById("edit-pane-switch").checked = false;
+        document.getElementById("edit-pane-switch").onchange = () => {
+          if (id === null && document.getElementById("edit-pane-switch").checked) {
+            document.getElementById("edit-pane-date").style.display = "none";
+            document.getElementById("edit-pane-type-div").style.display = "none";
+            document.getElementById("edit-pane-weightage-div").style.display = "none";
+            document.getElementById("edit-pane-priority-div").style.display = "inline-block";
+          } else {
+            switchToDated();
+          }
+        }
+        document.getElementById("edit-pane-submit").onclick = () => {
+          if (id === null && document.getElementById("edit-pane-switch").checked) {
+            posting = Object.fromEntries(["module", "title", "description", "class", "priority"].map(x => 
+              [x, document.getElementById("edit-pane-"+x).value]
+            ));
+            posting["isclass"] = document.getElementById("edit-pane-class").value !== "" ? 1 : 0;
+            $.post("/interact/add/announcement", posting, function(status) {
+              if (status.success) {
+                window.location = "/account";
+              } else {
+                let errorDisplay = document.getElementById("edit-pane-error");
+                errorDisplay.title = status.message;
+                errorDisplay.style.display = "block";
+                new bootstrap.Tooltip(errorDisplay);
+              }
+            });
+          } else {
+            posting = Object.fromEntries(data.map(x => 
+              [x, x === "id" ? id : document.getElementById("edit-pane-"+x).value]
+            ));
+            if (id === null) {
+              posting["isclass"] = document.getElementById("edit-pane-class").value !== "" ? 1 : 0;
+            } else {
+              posting["isclass"] = item[8];
+            }
+            $.post("/interact/edit/item", posting, function(status) {
+              if (status.success) {
+                window.location = "/account";
+              } else {
+                let errorDisplay = document.getElementById("edit-pane-error");
+                errorDisplay.title = status.message;
+                errorDisplay.style.display = "block";
+                new bootstrap.Tooltip(errorDisplay);
+              }
+            });
+          }
+        }
+      });
+    }
+    function switchToDated() {
+      document.getElementById("edit-pane-date").style.display = "block";
+      document.getElementById("edit-pane-type-div").style.display = "inline-block";
+      document.getElementById("edit-pane-weightage-div").style.display = "inline-block";
+      document.getElementById("edit-pane-priority-div").style.display = "none";
+    }
+
+    function populateModuleSelect() {
+      document.getElementById("edit-pane-module").innerHTML = '<option value="" selected disabled>Module</option>';
+      for (c of Object.keys(classEditList)) {
+        document.getElementById("edit-pane-module").innerHTML += `
+          <option value=${c}>${c}</option>
+        `;
+      }
+    }
+    function populateClassSelect() {
+      document.getElementById("edit-pane-class").innerHTML = '<option value="" selected>-</option>';
+      for (c of (classEditList[document.getElementById("edit-pane-module").value] ?? [])) {
+        document.getElementById("edit-pane-class").innerHTML += `
+          <option value=${c}>${c}</option>
+        `;
+      }
+    }
+
+    let classList = {};
+    let classEditList = {};
+    $(document).ready(function() {
+      $.get("/interact/get/class-list", (c) => classList = (c ?? {}));
+      $.get("/interact/get/class-list?edit=1", (c) => classEditList = (c ?? {}));
+      $("#edit-pane-date").datepicker({
+        autoclose: true,
+        format: "yyyy-mm-dd",
+        startDate: new Date(),
+        todayHighlight: true
+      });
+      $("#edit-pane-date").click(function() {
+        $("#edit-pane-date").datepicker("update", $("#edit-pane-date").val());
+      });
+
+      autosize($("#edit-pane-description"));
+      autosize($("#view-modal-overview"));
+      $(document).on('shown.bs.modal', "#view-modal", function() {
+        autosize.update($("#view-modal-overview"));
+      });
+    })
+
+    function populateSidePane(id) {
+      $.get("/interact/get/item?id=" + id, function(item) {
+        item = item ?? ["", "", "", "", "", "", "", "", "", "", ""];
+        item[5] = formatWeightage(item[5]).replace("-", "");
+        let data = ["id", "module", "title", "description", "date", "weightage", "type", "class"]
+        for (i in data) {
+          if (i == 0) continue;
+          document.getElementById("side-pane-"+data[i]).innerHTML = item[i];
+        }
+        document.getElementById("side-pane-type").className = "badge " + (badgeMap[item[6]] ?? badgeDefault);
+        document.getElementById("side-pane-module").onclick = function() {
+          populateModuleModal(item[1]);
+          viewModal.show();
+        }
+        document.getElementById("side-pane-edit").style.display = item[10] ? "block" : "none";
+        document.getElementById("side-pane-delete").style.display = item[10] ? "block" : "none";
+      });
+    }
+
+    function editItem(id) {
+      populateEditPane(id);
+      if (id === null) {
+        select(selected);
+        document.getElementById('welcome').style.display = 'none';
+        document.getElementById('filter').style.display = 'none';
+      } else {
+        document.getElementById('side-pane').style.display = 'none';
+      }
+      document.getElementById('edit-pane').style.display = 'block';
+      setTimeout(function () {
+        autosize.update(document.getElementById("edit-pane-description"));
+      }, 250);
+    }
+
+    function deleteItem(id) {
+      $.post("/interact/delete/item", {id: id}, function(status) {
+        if (status.success) {
+          window.location = "/account";
+        } else {
+          deleteDialog.hide();
+        }
+      })
+    }
+
+    let timer = null;
+    function hold(code) {
+      release();
+      timer = window.setTimeout(function() {
+        populateModuleModal(code);
+        viewModal.show();
+      }, HOLD_LENGTH);
+    }
+    function release() {
+      if (timer) window.clearTimeout(timer);
+    }
+    document.body.addEventListener("mouseup", release);
+
+    function populateModuleModal(mCode) {
+      $.get(`/interact/get/class?code=${mCode}`, function(data) {
+        if (data === null) {
+          data = {
+            mod: ["", "", ""],
+            coord: false
+          }
+        }
+        mod = data["mod"];
+
+        ["code", "coord", "title"].forEach((field, i) => document.getElementById("view-modal-"+field).innerHTML = mod[i]);
+        document.getElementById("view-modal-overview").value = mod[3];
+        document.getElementById("view-modal-class-dropdown").innerHTML = `
+          <li><div class="dropdown-item" onclick="populateModuleModal('${mCode}')">(Module)</div></li>
+        `;
+        for (c of (classList[mod[0]] ?? [])) {
+          document.getElementById("view-modal-class-dropdown").innerHTML += `
+            <li><div class="dropdown-item" onclick="populateClassModal('${mCode}', '${c}')">${c}</div></li>
+          `;
+        }
+        
+        autosize.update(document.getElementById("view-modal-overview"));
+        document.getElementById("view-modal-class-div").style.display = "none";
+        document.getElementById("view-modal-details").style.display = "none";
+        document.getElementById("view-modal-coord-div").style.display = "block";
+        document.getElementById("view-modal-class-add-div").style.display = data["coord"] ? "block" : "none";
+        document.getElementById("view-modal-class-delete").style.display = "none";
+        document.getElementById("view-modal-error").style.display = "none";
+        document.getElementById("view-modal-save").style.display = data["coord"] ? "block" : "none";
+
+        document.getElementById("view-modal-overview").disabled = !data["coord"];
+
+        document.getElementById("view-modal-class-add").onclick = function() {
+          $.post("/interact/add/class", {
+            mcode: mCode,
+            cname: document.getElementById("view-modal-class-add-input").value
+          }, function(status) {
+            if (status.success) {
+              window.location = "/account";
+            } else {
+              document.getElementById("view-modal-class-add-input").value = "";
+            }
+          });
+        }
+        document.getElementById("view-modal-save").onclick = function() {
+          $.post("/interact/edit/module/offered", {
+            mcode: mCode,
+            overview: document.getElementById("view-modal-overview").value
+          }, function(status) {
+            if (status.success) {
+              window.location = "/account";
+            } else {
+              let errorDisplay = document.getElementById("view-modal-error");
+              errorDisplay.title = status.message;
+              errorDisplay.style.display = "block";
+              new bootstrap.Tooltip(errorDisplay);
+            }
+          });
+        }
+      })
+    }
+
+    function populateClassModal(mCode, cName) {
+      $.get(`/interact/get/class?code=${mCode}&name=${cName}`, function(data) {
+        if (data === null) {
+          data = {
+            overview: "",
+            teacher: false,
+            coord: false
+          }
+        }
+        document.getElementById("view-modal-class").value = cName;
+        document.getElementById("view-modal-overview").value = data["overview"];
+
+        autosize.update(document.getElementById("view-modal-overview"));
+        document.getElementById("view-modal-class-div").style.display = "block";
+        document.getElementById("view-modal-details").style.display = "block";
+        document.getElementById("view-modal-coord-div").style.display = "none";
+        document.getElementById("view-modal-class-add-div").style.display = "none";
+        document.getElementById("view-modal-class-delete").style.display = data["coord"] ? "block" : "none";
+        document.getElementById("view-modal-error").style.display = "none";
+        document.getElementById("view-modal-save").style.display = (data["teacher"] || data["coord"]) ? "block" : "none";
+
+        document.getElementById("view-modal-class").disabled = !data["coord"];
+        document.getElementById("view-modal-overview").disabled = !data["teacher"];
+
+        document.getElementById("view-modal-details").onclick = () => window.location = `/class?code=${mCode}&name=${cName}`
+        document.getElementById("view-modal-class-delete").onclick = function() {
+          $.post("/interact/delete/class", {
+            mcode: mCode,
+            cname: cName
+          }, function(status) {
+            if (status.success) {
+              window.location = "/account";
+            }
+          });
+        }
+        document.getElementById("view-modal-save").onclick = function() {
+          $.post("/interact/edit/class", {
+            mcode: mCode,
+            org: cName,
+            cname: document.getElementById("view-modal-class").value,
+            overview: document.getElementById("view-modal-overview").value
+          }, function(status) {
+            if (status.success) {
+              window.location = "/account";
+            } else {
+              let errorDisplay = document.getElementById("view-modal-error");
+              errorDisplay.title = status.message;
+              errorDisplay.style.display = "block";
+              new bootstrap.Tooltip(errorDisplay);
+            }
+          });
+        }
+      });
+    }
+
+    function load() {
+      search();
+      $.get("/interact/get/announcements", function(announcements) {
+        let announceButtons = document.getElementById("announce-buttons");
+        if (announcements === null) {
+          announceButtons.innerHTML = "<h5>No announcements yet</h5>"
+          return;
+        }
+        let announceMain = document.getElementById("announce-main");
+        announceMain.innerHTML = "";
+        announceButtons.innerHTML = "";
+
+        let announce = null;
+        if (announcements.length === 0) {
+          announceButtons.innerHTML = "<h5>No announcements yet</h5>"
+        }
+        for (i in announcements) {
+          announce = announcements[i];
+          announceButtons.innerHTML += `
+            <button type="button" data-bs-target="#announcements" data-bs-slide-to="${i}" ${i === '0' ? 'class="active"' : ''}></button>
+          `;
+          announceMain.innerHTML += `
+            <div class="carousel-item ${i === '0' ? 'active' : ''} px-md-5">
+              <div class="bg-light mx-4 px-3 py-4 shadow" style="border-radius: 20px;">
+                <h3>${announce[2]}</h3>
+                <p class="text-muted">${announce[4]}<span class="badge alert-secondary ms-1">${announce[1]}</span></p>
+                <p>${announce[3]}</p>
+                <button class="btn btn-outline-secondary mb-2" style="width: 100%; border-radius: 20px; ${document.getElementById("is-teacher").innerHTML === 'True' ? '' : 'display: none;'}" onclick="deleteItem('${announce[0]}')">Delete</button>
+              </div>
+            </div>
+          `;
+        }
+      });
+    }
+
+    ["toggle-item-module", "toggle-item-class"].forEach(id => new bootstrap.Tooltip(document.getElementById(id)));
+    window.addEventListener('load', load);
+  </script>
+</body>
+</html>
