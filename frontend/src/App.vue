@@ -11,15 +11,33 @@
           <v-icon class="me-1" v-else>mdi-white-balance-sunny</v-icon>
         </template>
       </v-switch>
-      <v-btn text>
-        <router-link style="text-decoration: none; color: inherit" to="/modules">
-          Modules
-        </router-link>
+      <v-menu
+        open-on-hover
+        offset-y
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            text
+            v-bind="attrs"
+            v-on="on"
+          >
+            Tools
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item to="/planner">
+            Planner
+          </v-list-item>
+        </v-list>
+      </v-menu>
+      <v-btn text to="/departments">
+        Departments
       </v-btn>
-      <v-btn text>
-        <router-link style="text-decoration: none; color: inherit" to="/about">
-          About
-        </router-link>
+      <v-btn text to="/modules">
+        Modules
+      </v-btn>
+      <v-btn text to="/about">
+        About
       </v-btn>
     </v-app-bar>
 

@@ -10,6 +10,8 @@
       </v-col>
     </v-row>
     <h3>{{ module.title }}</h3>
+    <v-btn @click="direct">{{ module.department }}</v-btn>
+    <br />
     <br />
     <p>{{ module.description }}</p>
   </v-container>
@@ -29,6 +31,14 @@ export default Vue.extend({
   },
   data: () => ({}),
   methods: {
+    direct() {
+      this.$router.push({
+        name: "departmentDetails",
+        params: {
+          code: this.module.department,
+        },
+      });
+    },
     close() {
       this.$emit("close");
     },

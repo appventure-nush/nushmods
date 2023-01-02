@@ -22,6 +22,21 @@ const routes: Array<RouteConfig> = [
     path: '/modules',
     name: 'modules',
     component: () => import(/* webpackChunkName: "modules" */ '../views/ModulesView.vue')
+  },
+  {
+    path: '/departments',
+    name: 'departments',
+    component: () => import(/* webpackChunkName: "departments" */ '../views/DepartmentsView.vue')
+  },
+  {
+    path: '/departments/:code',
+    name: 'departmentDetails',
+    component: () => import(/* webpackChunkName: "departments" */ '../views/DepartmentDetailsView.vue')
+  },
+  {
+    path: '/planner',
+    name: 'planner',
+    component: () => import(/* webpackChunkName: "departments" */ '../views/PlannerView.vue')
   }
 ]
 

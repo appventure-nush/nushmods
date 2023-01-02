@@ -1,5 +1,6 @@
 export interface Module {
   code: string;
+  department: string;
   title: string;
   description: string;
   mcs: number;
@@ -20,8 +21,8 @@ export class Filter {
   };
   check(module: Module): boolean {
     return (
-      (module.code.toLowerCase().includes(this.params.search) ||
-        module.title.toLowerCase().includes(this.params.search)) &&
+      (module.code.toLowerCase().includes(this.params.search.toLowerCase()) ||
+        module.title.toLowerCase().includes(this.params.search.toLowerCase())) &&
       module.mcs >= this.params.mcsRange[0] &&
       module.mcs <= this.params.mcsRange[1] &&
       module.hours >= this.params.hoursRange[0] &&
