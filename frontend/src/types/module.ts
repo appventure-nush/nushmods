@@ -4,7 +4,14 @@ export interface Module {
   title: string;
   description: string;
   mcs: number;
-  hours: number;
+  hrs: number;
+  level: number;
+  sem: string;
+  type: string;
+  prerequisites: string;
+  preclusions: string;
+  corequisites: string;
+  remarks:string;
 }
 
 export interface FilterParams {
@@ -25,8 +32,8 @@ export class Filter {
         module.title.toLowerCase().includes(this.params.search.toLowerCase())) &&
       module.mcs >= this.params.mcsRange[0] &&
       module.mcs <= this.params.mcsRange[1] &&
-      module.hours >= this.params.hoursRange[0] &&
-      module.hours <= this.params.hoursRange[1]
+      module.hrs >= this.params.hoursRange[0] &&
+      module.hrs <= this.params.hoursRange[1]
     );
   }
 }
