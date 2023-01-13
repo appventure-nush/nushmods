@@ -3,7 +3,7 @@ import { Department } from "@/types/department";
 
 
 export async function getModules(): Promise<Module[]> {
-  return Promise.resolve(fetch("http://127.0.0.1:3202/api").then(res => res.json()).then(res => {
+  return Promise.resolve(fetch("/api/modules").then(res => res.json()).then(res => {
     return res as Module[];
   }));
 }
