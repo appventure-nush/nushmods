@@ -1,21 +1,40 @@
 from flask import Flask, request, jsonify
 import pandas as pd
+from pandasql import sqldf
+
+from util import pd2resp
 
 import pathlib
 
+
 # Repository Root
-data_dir = pathlib.Path(__file__).parent.parent
+data_dir = pathlib.Path(__file__).parent / "data"
 
-# Get Module Data
-module_data = pd.read_csv(data_dir / "pos.csv").fillna("").to_dict("records")
+# Get Data
+modules = pd.read_csv(data_dir / "pos.csv").fillna("")
+departments = pd.read_csv(data_dir / "departments.csv").fillna("")
 
+
+# Initiate Flask App
 app = Flask(__name__)
 
 @app.route("/api/modules", methods=["GET"])
-def api():
-    response = jsonify(module_data)
-    response.headers.add('Access-Control-Allow-Origin', '*') # TODO: Change this?
-    return response
+def get_modules():
+    # Get request parameters
+    department = request.args.get("department", "", str)
+    
+    # "Query"
+    query = "SELECT * FROM modules" + (f" WHERE department = '{department}'" if department else "")
+    
+    # Query the Database
+    df = sqldf(query)
+
+    return pd2resp(df)
+
+@app.route("/api/departments", methods=["GET"])
+def get_departments():
+    return pd2resp(departments)
+    
 
 
 if __name__ == '__main__':
