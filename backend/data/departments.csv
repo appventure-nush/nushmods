@@ -1,0 +1,6 @@
+code,name,description,major
+EL,English Language & Literature,generic department descripion,False
+MA,Mathematics & Statistics,generic department description,False
+CS,Computer Science,generic department description,True
+CM,Chemistry,generic department description,True
+PC,Physics,generic department description,True
