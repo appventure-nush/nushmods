@@ -1,15 +1,13 @@
 from flask import Flask, request, jsonify
-import csv
+import pandas as pd
 
-# Load CSV file
+import pathlib
 
-with open("pos.csv", encoding="UTF-8") as f:
-    csv_reader = csv.DictReader(f)
+# Repository Root
+data_dir = pathlib.Path(__file__).parent.parent
 
-    global module_data # yes
-    module_data = [row for row in csv_reader]
-        
-    
+# Get Module Data
+module_data = pd.read_csv(data_dir / "pos.csv").fillna("").to_dict("records")
 
 app = Flask(__name__)
 
